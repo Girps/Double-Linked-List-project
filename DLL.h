@@ -10,7 +10,7 @@ class DLL
 		Node* next; 
 		Node* prev;
 		T data; 
-		Node(T data_Pram) :data{ data_Pram }, next{ nullptr }, prev{nullptr}{}
+		explicit  Node(T data_Pram) :data{ data_Pram }, next{ nullptr }, prev{nullptr}{}
 		~Node(){std::cout << "~[" << data << "]";}
 	};
 	
@@ -20,7 +20,26 @@ class DLL
 	int size; 
 
 	// Private functions memebers
+
+	/* Function allocates and initializes node on the heap returns a pointer */
 	Node* create_Node(T data_Pram) { return new Node(data_Pram);  }
+
+	/* Recursive function saves prior node and reassigns when back tracking*/
+	Node* reverse_Helper(Node*& ptr)
+	{
+		// Base case
+		if (ptr == nullptr)
+		{
+			return nullptr;
+		}
+		else // Recursive case 
+		{
+			Node* temp = ptr->prev;
+			ptr->prev = reverse_Helper(ptr->next);
+			ptr->next = temp;
+			return ptr;
+		}
+	}
 
 	// Public function memebers and constructors 
 	public: 
@@ -49,7 +68,7 @@ class DLL
 		}
 
 		/* Destructor deletes nodes from list */
-		~DLL() { free_Nodes(); std::cout << "list freed"; }
+		~DLL() { free_Nodes(); std::cout << " list freed"; }
 
 		/* Assingment overloaded operator function copies data from argument 
 			and returns a self refecence to support assignent chainging*/
@@ -129,7 +148,7 @@ class DLL
 		}
 		
 		// getter member functions
-		void get_Size() const { return this->size;  }
+		int get_Size() const { return this->size;  }
 
 		/* Void function allocates a node and is added at index offset*/
 		void add_Node(T data_Pram, int index) 
@@ -227,7 +246,16 @@ class DLL
 		/* Void function removes first node in the linked list and decremements size*/
 		void remove_First() 
 		{
-			if (head != nullptr) 
+			// If removing head 
+			if (head->next == nullptr) 
+			{
+				Node* cursor = head; 
+				head = nullptr; 
+				tail = head; 
+				delete cursor; 
+				this->size--; 
+			}// Other wise
+			else if (head != nullptr) 
 			{
 				// assign pointer to head
 				Node* cursor = head; 
@@ -243,16 +271,20 @@ class DLL
 		/* Void function removes last node in linked list and decrements size*/
 		void remove_Last() 
 		{
-			if (tail != nullptr) 
+			if (tail == head) 
+			{
+				remove_First(); 
+			}
+			else if (tail != nullptr) 
 			{
 				// assign pointer to tail
-				Node* cursor = tail; 
+				Node* target = tail; 
 				tail = tail->prev; 
 				tail->next = nullptr;
-				// delete tail
-				delete tail; 
+				// delete old tail
+				delete target; 
 				// dec size
-				this->size--; 
+				this->size--;
 			}
 		}
 
@@ -262,6 +294,7 @@ class DLL
 			this->size = 0;
 			Node* cursor{ head };
 			Node* temp{ head };
+			std::cout << "\n"; 
 			while (cursor != nullptr) 
 			{
 				// Delete node prior to next node
@@ -269,6 +302,8 @@ class DLL
 				delete temp; 
 				temp = cursor; 
 			}
+			this->head = nullptr;
+			this->tail = nullptr; 
 		}
 
 		/* Bool returning function linear seaches list for data passsed in the arguement*/
@@ -294,13 +329,14 @@ class DLL
 		{
 			// Pointer to the head
 			Node* cursor = head;
+			std::cout << "\n";
 			// Pointer is not null assign to next node
 			while (cursor != nullptr) 
 			{
 				std::cout << "[" << cursor->data << "]===";
 				cursor = cursor->next; 
 			}
-			std::cout << "NULL"; 
+			std::cout << "NULL\n"; 
 		}
 
 		/*Void returning function reverse linked list and reassgins head and tail*/
@@ -316,23 +352,6 @@ class DLL
 
 			head = new_Head; 
 			tail = new_Tail; 
-		}
-
-		/* Recursive function saves prior node and reassigns when back tracking*/
-		Node* reverse_Helper(Node* &ptr) 
-		{
-			// Base case
-			if (ptr== nullptr) 
-			{
-				return nullptr; 
-			}
-			else // Recursive case 
-			{
-				Node* temp = ptr->prev; 
-				ptr->prev = reverse_Helper(ptr->next);
-				ptr->next = temp; 
-				return ptr; 
-			}
 		}
 
 		/*Bool returning overlaoded function compares size and data between

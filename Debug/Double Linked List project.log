@@ -1,2 +1,3 @@
 ﻿  Driver.cpp
+C:\Users\Jesse\source\repos\Double Linked List project\Driver.cpp(19,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Double Linked List project.vcxproj -> C:\Users\Jesse\source\repos\Double Linked List project\Debug\Double Linked List project.exe
