@@ -308,33 +308,30 @@ class DLL
 		{
 			Node* new_Head{this->tail};
 			Node* new_Tail{this->head};
-			// head assigned tail address 
-			// tail assigned head address
 
 			reverse_Helper(head); 
+
+			// head assigned tail address 
+			// tail assigned head address
 
 			head = new_Head; 
 			tail = new_Tail; 
 		}
 
-		/* Recursive function */
+		/* Recursive function saves prior node and reassigns when back tracking*/
 		Node* reverse_Helper(Node* &ptr) 
 		{
-			if (ptr == nullptr)
+			// Base case
+			if (ptr== nullptr) 
 			{
-				return ptr;
+				return nullptr; 
 			}
-			Node* temp = (ptr)->prev;
-			(ptr)->prev = (ptr)->next;
-			(ptr)->next = temp;
-
-			if ((ptr)->prev == nullptr)
+			else // Recursive case 
 			{
-				return nullptr;
-			}
-			else
-			{
-				return  reverse_Helper(ptr->prev);
+				Node* temp = ptr->prev; 
+				ptr->prev = reverse_Helper(ptr->next);
+				ptr->next = temp; 
+				return ptr; 
 			}
 		}
 
