@@ -1,3 +1,5 @@
 ﻿  Driver.cpp
-C:\Users\Jesse\source\repos\Double Linked List project\Driver.cpp(19,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Jesse\source\repos\Double Linked List project\Driver.cpp(20,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Jesse\source\repos\Double Linked List project\DLL.h(322): warning C4715: 'DLL<int>::remove_First': not all control paths return a value
+C:\Users\Jesse\source\repos\Double Linked List project\DLL.h(349): warning C4715: 'DLL<int>::remove_Last': not all control paths return a value
   Double Linked List project.vcxproj -> C:\Users\Jesse\source\repos\Double Linked List project\Debug\Double Linked List project.exe

@@ -11,42 +11,34 @@ template<typename T>
 void remove_FirstTest(DLL<T>& list_Pram, int n); 
 template<typename T>
 void remove_LastTest(DLL<T>& list_Pram, int n); 
-
+template<typename T>
+DLL<T> ret_DLL(); 
 
 int main() 
 {
 	// Set seed to clock 
 	srand(time(NULL)); 
 	DLL<int> list; 
-	add_FirstTest(list, 5, 100);
-	std::cout << " list size " << list.get_Size() << "\n";
-
-	list.traverse(); 
-	list.free_Nodes(); 
-	std::cout << " list size " << list.get_Size() << "\n";
+	list.add_First(1);
+	list.add_First(2);
+	list.add_First(3); 
 	
-	add_LastTest(list,5,100); 
-	list.traverse(); 
-	std::cout << " list size " << list.get_Size() << "\n";
-
-	remove_FirstTest(list,1);
-	list.traverse(); 
-	remove_LastTest(list,1);
-	list.traverse();
-	std::cout << " list size " << list.get_Size() << "\n";
-	remove_LastTest(list,3);
-
-	std::cout << " list size " << list.get_Size() << "\n";
-
-	add_FirstTest(list,10,100); 
-	list.traverse(); 
-	list.reverse(); 
-	list.traverse(); 
-	std::cout << " list size " << list.get_Size() << "\n";
-
-
-	
+	std::cout << list.remove_Node(1); 
 	return 0; 
+}
+
+/*UDT reference returning function creates a UDT and returns UDT function tests move constructor and move assignement*/
+template<typename T>
+DLL<T> ret_DLL() 
+{
+	DLL<T> local; 
+	int number = 0;
+	for (int i = 0; i < 10; i++)
+	{
+		number = rand() % 100;
+		local.add_First(number);
+	}
+	return local; 
 }
 
 /* Function template adds random numbers in range -1 at n amount of times */

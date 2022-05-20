@@ -1,6 +1,7 @@
 #include<iostream>
 
 struct out_of_range {};
+struct no_such_element_exception {}; 
 
 template <typename T>
 class DLL
@@ -47,20 +48,24 @@ class DLL
 		
 		/* Deep copy constructor copies data from parameterized linked list to calling object*/
 		DLL(const DLL& l_List)
-			:head{ nullptr }, tail{ nullptr }, size{l_List}
+			:head{ nullptr }, tail{ nullptr }, size{0}
 		{
-			Node* temp = l_List.head; 
+			printf("\nDeep copy constructor called\n");
+			Node* target = l_List.head; 
 			// Allocate nodes to calling object
-			while (temp != nullptr) 
+			while (target != nullptr) 
 			{
-				this->add_Last(l_List->data);
+				// Copy arg list data and traverse
+				this->add_Last(target->data);
+				target = target->next; 
 			}
 		}
 
 		/* Move constructor takes resources from rr value and assigns to lvalue */
-		DLL(const DLL&& rr_List)
+		DLL( DLL&& rr_List)
 			:head{ rr_List.head }, tail{ rr_List.tail }, size{rr_List.size}
 		{
+			printf("\nMove constructor called\n");
 			// set rr value pointer memebers to nullptr 
 			rr_List.head = nullptr; 
 			rr_List.tail = nullptr; 
@@ -74,11 +79,17 @@ class DLL
 			and returns a self refecence to support assignent chainging*/
 		DLL& operator = (const DLL& l_List) 
 		{
+			printf("\nDeep assignement called\n");
 			if (this->size > l_List.size) 
 			{
+				// calling obj is bigger remove end of nodes 
+				// and began copying data with pointers 
 				int diff = this->size - l_List.size; 
-				// This case remove end of tail then copy data
-				this->remove_Last(); 
+				for (int i = 0; i < diff;i++) 
+				{
+					this->remove_Last(); 
+				}
+				// Assgin pointers to this head and arg's head
 				Node* cursor = head; 
 				Node* target = l_List.head; 
 				while (cursor != nullptr) 
@@ -99,7 +110,7 @@ class DLL
 				for (int i = 0; i < this->size;i++) 
 				{
 					// Copy data
-					cursor->data = l_List->data; 
+					cursor->data = target->data; 
 					// traverse 
 					cursor = cursor->next;
 					target = target->next; 
@@ -115,7 +126,7 @@ class DLL
 			{
 				// Lists have the same size 
 				Node* cursor = head;
-				Node* target = l_List; 
+				Node* target = l_List.head; 
 				
 				while (cursor != nullptr) 
 				{
@@ -134,8 +145,9 @@ class DLL
 		/* Move assignment overloaded function takes resources of rr list and
 			reassigns argument memebrs to null, returns self reference to support
 				assignment chaining*/
-		DLL& operator = (const DLL&& rr_List)
+		DLL& operator = ( DLL&& rr_List)
 		{
+			printf("\nMove assginement called\n");
 			size = rr_List.size; 
 			head = rr_List.head; 
 			tail = rr_List.tail; 
@@ -153,52 +165,83 @@ class DLL
 		/* Void function allocates a node and is added at index offset*/
 		void add_Node(T data_Pram, int index) 
 		{
-			// Throw exception if index is less than 0, equal to or greater than size
-			if (index < 0 || index >= size) 
+			// Throw exception if index is less than 0, equal to or greater than size if not zero
+			if (index < 0 || ( index >= size && index != 0 )) 
 			{
-				throw out_of_range; 
+				throw out_of_range();
 			}
-			int offset{index-1}; 
-			// Cursor hold address in head pointer
-			Node* cursor = head; 
-			// Find the offset 
-			while (index > 0 ) 
+			else if (index == 0) 
 			{
-				cursor = cursor->next; 
-				offset--; 
+				add_First(data_Pram); 
 			}
-			// Have prior node now reassign pointers 
-			Node* temp = create_Node(data_Pram); 
-			temp->prev = cursor; 
-			temp->next = cursor->next; 
-			cursor->next->prev = temp; 
-			cursor->next = temp; 
-			this->size++; // inc size
+			else if (index == size - 1 )
+			{
+				add_Last(data_Pram); 
+			}
+			else
+			{
+				int offset{ index - 1 };
+				// Cursor hold address in head pointer
+				Node* cursor = head;
+				// Find the offset 
+				while (index > 0)
+				{
+					cursor = cursor->next;
+					offset--;
+				}
+				// Have prior node now reassign pointers 
+				Node* temp = create_Node(data_Pram);
+				temp->prev = cursor;
+				temp->next = cursor->next;
+				cursor->next->prev = temp;
+				cursor->next = temp;
+				this->size++; // inc size
+			}
 		}
 
-		/* Void function removes a node at an index*/
-		void remove_Node(T data_Pram,int index)
+		/* T returning function removes a node at an index, decrements size and return data by value */
+		T remove_Node(int index)
 		{
-			// Throw exception if index is less than 0, equal to or greater than size
-			if (index < 0 || index >= size)
+			// Throw exception if index is less than 0, equal to or greater than size if not zero
+			if (index < 0 || (index >= size && index != 0))
 			{
-				throw out_of_range;
+				throw out_of_range();
 			}
-			int offset{ index - 1 };
-			// Cursor hold address in head pointer
-			Node* target = head;
-			// Find the offset 
-			while (index > 0)
+			else if (index == 0) 
 			{
-				target = target->next;
-				offset--;
+				return remove_First(); 
 			}
-			Node* cursor = target->prev; 
-			// Now reassing pointers and delete the targeted node
-			cursor->next = target->next; 
-			target->next->prev = cursor; 
-			delete target; // remove node from the list
-			this->size--; // inc size
+			else if (index == size - 1) 
+			{
+				return remove_Last(); 
+			}
+			else
+			{
+				int offset{ index - 1 };
+				// Cursor hold address in head pointer
+				Node* cursor = head;
+				// Get Node before the targeted node
+				while (offset > 0)
+				{
+					cursor = cursor->next;
+					offset--;
+				}
+				
+				// Now reassing pointers and delete the targeted node
+				Node* target = cursor->next;
+				cursor->next = target->next; 
+				// Assuming the node after wards is not null 
+				// Assign node after target prev to cursor node
+				if (cursor->next != nullptr) 
+				{
+					cursor->next->prev = cursor; 
+				}
+				// Get target node
+				T data{ target->data };
+				delete target; // remove node from the 
+				this->size--; // inc size
+				return data; 
+			}
 		}
 
 		/*Void function allocates node and assigns address at beginning of the list*/
@@ -243,17 +286,25 @@ class DLL
 			}
 		}
 
-		/* Void function removes first node in the linked list and decremements size*/
-		void remove_First() 
+		/* T returning function removes first node in the linked list, decremements size and returns data by value*/
+		T remove_First() 
 		{
-			// If removing head 
-			if (head->next == nullptr) 
+			/* If list is empty throw an exception*/
+			if (head == nullptr) 
 			{
+				throw no_such_element_exception(); 
+				// If removing head 
+			}
+			else if (head->next == nullptr) 
+			{
+				T data{}; 
 				Node* cursor = head; 
 				head = nullptr; 
 				tail = head; 
+				data = cursor->data;
 				delete cursor; 
 				this->size--; 
+				return data; 
 			}// Other wise
 			else if (head != nullptr) 
 			{
@@ -261,19 +312,26 @@ class DLL
 				Node* cursor = head; 
 				head = head->next; // next node is head
 				head->prev = nullptr;
+				T data{ cursor->data }; 
 				// delete old node
 				delete cursor;
 				// dec size
 				this->size--; 
+				return data; 
 			}	
 		}
 		
-		/* Void function removes last node in linked list and decrements size*/
-		void remove_Last() 
+		/* T returning function removes last node in linked list, decrements size and T data by value*/
+		T remove_Last() 
 		{
-			if (tail == head) 
+			/* If list is empty throw an exception*/
+			if (head == nullptr)
 			{
-				remove_First(); 
+				throw no_such_element_exception();
+			}
+			else if (tail == head) 
+			{
+				return remove_First(); 
 			}
 			else if (tail != nullptr) 
 			{
@@ -281,10 +339,12 @@ class DLL
 				Node* target = tail; 
 				tail = tail->prev; 
 				tail->next = nullptr;
+				T data{ target->data }; 
 				// delete old tail
 				delete target; 
 				// dec size
 				this->size--;
+				return data; 
 			}
 		}
 
@@ -366,10 +426,13 @@ class DLL
 				while (cursor != nullptr) 
 				{
 					// If data doesn't match return false
-					if (cursor->data != arg_List->data) 
+					if (cursor->data != target->data) 
 					{
 						return false;
 					}
+					// traverse the list
+					cursor = cursor->next; 
+					target = target->next; 
 				}
 				// Return true if size and data are the same
 				return true; 
